@@ -76,8 +76,7 @@ Do not use the real conversation archive as a test fixture or test output direct
 * Rebuild each snapshot from those files. Do not append incremental fragments onto an existing archive.
 * Replace a file only atomically, and never with an older `updated_at`.
 * Skip subagent sessions. Archive forks.
-* On `SessionStart`, reconcile `.session_ids` for the nearest `*.sublime-project` ancestor.
-* On `Stop`, `StopFailure`, `StopCancelled`, `SessionEnd`, and `PostCompact`, archive the current root session.
+* On `SessionStart`, `Stop`, `StopFailure`, `StopCancelled`, `SessionEnd`, and `PostCompact`, refresh every root session that belongs to the nearest `*.sublime-project` project and reconcile `.session_ids`. Do not archive only the session that fired the hook.
 * The hook must exit without blocking the turn. The writer is detached. Failures are logged and do not deny the hook.
 * `snapshot_sha256` is the SHA-256 of the Markdown body, excluding the YAML header.
 * Keep the YAML field set aligned with the OpenCode archives: `kind`, `project`, `source`, `provider`, `source_project_id`, `source_project_name`, `source_conversation_id`, `title`, `created_at`, `updated_at`, `snapshot_sha256`.
@@ -103,4 +102,4 @@ make uninstall-local
 
 `make install-local` copies `plugin/` to `~/.grok/plugins/grok-conversation-archive` and backs up a differing deployed file before replacing it. It does not delete other plugins. Do not run `grok plugin enable` for this copy: that command only sees marketplace installs. Confirm discovery with `grok inspect`, then start a new session.
 
-`make backfill` writes real archive files for the current project. Do not run it as part of an unrelated edit.
+`make backfill` runs the same project refresh as the hooks. Use it to catch up while Grok is not running. Do not run it as part of an unrelated edit.

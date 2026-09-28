@@ -396,6 +396,63 @@ test("archives a session and records its id on the project", async function () {
 })
 
 
+test("a turn-ending hook also archives the project's other sessions", async function () {
+  const root = await temporaryDirectory()
+  const project = join(root, "widget")
+  const env = environment(root, project)
+
+  await mkdir(project, { recursive: true })
+  await writeFile(join(project, "widget.sublime-project"), "{}\n")
+  await writeSession({
+    grokHome: env.GROK_HOME,
+    cwd: project,
+    summary: summaryDocument(project, {
+      updated_at: "2026-02-02T00:00:00.000Z"
+    })
+  })
+  await writeSession({
+    grokHome: env.GROK_HOME,
+    cwd: project,
+    sessionID: OLDER_SESSION_ID,
+    summary: summaryDocument(project, {
+      info: {
+        id: OLDER_SESSION_ID,
+        cwd: project
+      },
+      generated_title: "Older session",
+      updated_at: "2026-01-01T00:00:00.000Z"
+    })
+  })
+
+  const result = await handleHookEvent({
+    hook_event_name: "Stop",
+    sessionId: SESSION_ID,
+    cwd: project,
+    workspaceRoot: project
+  }, env)
+
+  assert.equal(result.archived, true)
+  assert.equal(result.sessionID, SESSION_ID)
+  assert.match(
+    await readFile(
+      join(
+        env.CONVERSATION_ARCHIVE_ROOT,
+        "grok",
+        "widget",
+        OLDER_SESSION_ID,
+        "conversation.md"
+      ),
+      "utf8"
+    ),
+    /Older session/
+  )
+  assert.equal(
+    await readFile(join(project, ".session_ids"), "utf8"),
+    SESSION_ID + "\n" + OLDER_SESSION_ID + "\n"
+  )
+})
+
+
 test("does not replace a newer snapshot or archive a subagent", async function () {
   const root = await temporaryDirectory()
   const project = join(root, "widget")

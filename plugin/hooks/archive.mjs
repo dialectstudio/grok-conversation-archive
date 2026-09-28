@@ -2026,14 +2026,34 @@ async function backfillProject(options) {
       continue
     }
 
-    results.push(await archiveSession({
-      sessionID: session.id,
-      cwd: sessionCwd,
-      workspace: workspace,
-      grokHome: grokHome,
-      conversationsRoot: conversationsRoot,
-      env: env
-    }))
+    try {
+      results.push(Object.assign(
+        { sessionID: session.id },
+        await archiveSession({
+          sessionID: session.id,
+          cwd: sessionCwd,
+          workspace: workspace,
+          grokHome: grokHome,
+          conversationsRoot: conversationsRoot,
+          env: env
+        })
+      ))
+    } catch (error) {
+      await log(
+        "error",
+        "archive failed",
+        {
+          sessionID: session.id,
+          error: errorDetails(error)
+        },
+        env
+      )
+      results.push({
+        sessionID: session.id,
+        archived: false,
+        reason: "error"
+      })
+    }
   }
 
   await reconcileProjectSessions({
@@ -2072,37 +2092,25 @@ async function handleHookEvent(event, env) {
   const cwd = eventCwd(sourceEvent, sourceEnv)
   const workspace = eventWorkspace(sourceEvent, sourceEnv) || cwd
 
-  if (name === "session_start") {
-    try {
-      await reconcileProjectSessions({
-        cwd: cwd,
-        workspace: workspace,
-        env: sourceEnv
-      })
-    } catch (error) {
-      await log(
-        "error",
-        "session reconciliation failed",
-        { error: errorDetails(error) },
-        sourceEnv
-      )
-    }
-  }
-
-  if (!sessionID) {
-    return {
-      archived: false,
-      reason: "missing-session-id"
-    }
-  }
-
   try {
-    return await archiveSession({
-      sessionID: sessionID,
+    const results = await backfillProject({
       cwd: cwd,
       workspace: workspace,
       env: sourceEnv
     })
+    const current = results.find(function (result) {
+      return result.sessionID === sessionID
+    })
+
+    if (current) {
+      return current
+    }
+
+    return {
+      archived: false,
+      reason: sessionID ? "missing-session" : "maintained",
+      sessions: results.length
+    }
   } catch (error) {
     await log(
       "error",
@@ -2235,6 +2243,18 @@ async function main() {
 
   const runInline = args.includes("--foreground") ||
     args.includes("--archive-run")
+
+  if (!args.includes("--archive-run")) {
+    await log(
+      "info",
+      "hook accepted",
+      {
+        event: normalizeEventName(event) || "unspecified",
+        sessionID: eventSessionID(event, env)
+      },
+      env
+    )
+  }
 
   if (!runInline) {
     try {

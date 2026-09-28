@@ -86,7 +86,7 @@ plugin/hooks/archive.mjs
 
 `plugin/hooks/archive.mjs` is the hook and the archive implementation.
 
-Hooks run on `SessionStart`, `Stop`, `StopFailure`, `StopCancelled`, `SessionEnd`, and `PostCompact`. The hook process detaches the writer and exits so the turn is not held open for the snapshot. `SessionStart` also reconciles `.session_ids`.
+Hooks run on `SessionStart`, `Stop`, `StopFailure`, `StopCancelled`, `SessionEnd`, and `PostCompact`. Each of those events refreshes every root session that belongs to the current project, writes any missing or newer `conversation.md`, and reconciles `.session_ids`. A session does not need its own manual pass. The hook process detaches that work and exits so the turn is not held open. Subagent sessions are skipped. Forks are archived.
 
 ## Development
 
@@ -110,7 +110,7 @@ Backfill the current Sublime project from sessions already on disk:
 make backfill
 ```
 
-That command writes into the real archive and updates the current project's `.session_ids`. Do not run it as part of an unrelated change.
+That command is the same project refresh the hooks run. Use it to catch up while Grok is not running. It writes into the real archive and updates the current project's `.session_ids`.
 
 Start Grok for this project, resuming the newest stored Grok session when one exists:
 
