@@ -1,0 +1,13 @@
+{
+  "name": "grok-conversation-archive",
+  "version": "0.1.0",
+  "description": "Store Grok TUI conversations as local Markdown archives under ~/Documents/AI/20-conversations.",
+  "author": {
+    "name": "dialectStudio, LLC"
+  },
+  "keywords": [
+    "archive",
+    "conversation",
+    "markdown"
+  ]
+}

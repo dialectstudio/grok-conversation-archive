@@ -1,0 +1,20 @@
+{
+  "name": "grok-conversation-archive",
+  "version": "0.1.0",
+  "description": "Grok TUI plugin that writes local Markdown snapshots of conversations.",
+  "license": "MIT",
+  "author": "dialectStudio, LLC",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dialectstudio/grok-conversation-archive.git"
+  },
+  "type": "module",
+  "scripts": {
+    "check": "node --check plugin/hooks/archive.mjs && sh -n scripts/install-local.sh && sh -n scripts/check-deployed.sh && sh -n scripts/uninstall-local.sh && sh -n scripts/grok-project.sh && sh -n scripts/debug-log.sh && sh -n scripts/backfill.sh && node --test",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

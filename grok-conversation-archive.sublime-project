@@ -1,0 +1,100 @@
+// grok-conversation-archive.sublime-project
+
+// sample Development/coding Sublime Text project settings
+
+{
+    "folders":
+    [
+        {
+            "path": ".",
+
+            "folder_exclude_patterns":
+            [
+                ".git",
+                ".hg",
+                ".svn",
+
+                ".cache",
+                ".mypy_cache",
+                ".nox",
+                ".pytest_cache",
+                ".ruff_cache",
+                ".tox",
+
+                ".venv",
+                "venv",
+
+                "__pycache__",
+                "node_modules"
+            ],
+
+            "file_exclude_patterns":
+            [
+                ".DS_Store",
+                "*.pyc",
+                "*.pyo",
+                "*.sublime-*"
+            ],
+
+            "binary_file_patterns":
+            [
+                "*.7z",
+                "*.bz2",
+                "*.dmg",
+                "*.gz",
+                "*.pkg",
+                "*.tar",
+                "*.zip",
+
+                "*.gif",
+                "*.ico",
+                "*.jpeg",
+                "*.jpg",
+                "*.png",
+                "*.webp",
+
+                "*.otf",
+                "*.ttf",
+                "*.woff",
+                "*.woff2",
+
+                "*.pdf"
+            ],
+
+            "index_exclude_patterns":
+            [
+                "//.next/",
+                "//.nuxt/",
+                "//build/",
+                "//coverage/",
+                "//dist/",
+                "//target/"
+            ],
+
+            "follow_symlinks": false
+        }
+    ],
+
+    "settings":
+    {
+	"show_minimap": false,
+
+        "gregk_project":
+        {
+            "schema": 1,
+            "type": "code",
+            "finder_tag": "code"
+        },
+
+        "spell_check": false,
+        "word_wrap": false,
+
+        "rulers":
+        [
+            [80, "dotted"],
+            100,
+            120
+        ]
+    }
+
+}
